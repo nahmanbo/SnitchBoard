@@ -1,28 +1,39 @@
+using System;
+using System.Linq;
+
 namespace SnitchBoard.Models;
 
 public class Report
 {
-    public string ReporterName { get; }
-    public string ReportedName { get; }
+    public (string FirstName, string LastName) ReporterName { get; }
+    public (string FirstName, string LastName) ReportedName { get; } 
     public string Text { get; }
 
     //====================================
-    private Report(string reporter, string reported, string text)
+    public Report((string, string) reporter, (string, string) reported, string text)
     {
         ReporterName = reporter;
         ReportedName = reported;
         Text = text;
     }
+    
+    //====================================
+    public Report()
+    {
+        ReporterName = (string.Empty, string.Empty);
+        ReportedName = (string.Empty, string.Empty);
+        Text = string.Empty;
+    }
 
     //--------------------------------------------------------------
-    public static Report CreateFromInput()
+    public Report CreateFromInput()
     {
         string input;
         string[] parts;
 
         do
         {
-            input = ReadRawInput();
+            input = ReadInput();
             parts = SplitInput(input);
 
             if (!IsValid(parts))
@@ -33,11 +44,11 @@ public class Report
         return CreateReportFromParts(parts);
     }
 
-//--------------------------------------------------------------
-    private static string ReadRawInput()
+    //--------------------------------------------------------------
+    private string ReadInput()
     {
         Console.WriteLine("Insert Report (format: Your Name | Reported Name | The Report):");
-        return Console.ReadLine()?? "";
+        return Console.ReadLine() ?? string.Empty;
     }
 
     //--------------------------------------------------------------
@@ -53,19 +64,32 @@ public class Report
     }
 
     //--------------------------------------------------------------
-    private static Report CreateReportFromParts(string[] parts)
+    private Report CreateReportFromParts(string[] parts)
     {
-        string reporter = parts[0].Trim();
-        string reported = parts[1].Trim();
+        (string FirstName, string LastName) reporter = SplitFullName(parts[0].Trim());
+        (string FirstName, string LastName) reported = SplitFullName(parts[1].Trim());
         string text = parts[2].Trim();
 
         return new Report(reporter, reported, text);
     }
-
-
+    
     //--------------------------------------------------------------
-    public string[] GetSplitParts()
+    private (string FirstName, string LastName) SplitFullName(string fullName)
     {
-        return new[] { ReporterName, ReportedName, Text };
+        string[] nameParts = fullName.Split(' ');
+        
+        if (nameParts.Length == 0)
+            return (string.Empty, string.Empty);
+        
+        string firstName = nameParts[0];
+        string lastName = string.Join(" ", nameParts.Skip(1));
+        
+        return (firstName, lastName);
+    }
+    
+    //--------------------------------------------------------------
+    public object[] GetSplitParts()
+    {
+        return new object[] { ReporterName, ReportedName, Text };
     }
 }

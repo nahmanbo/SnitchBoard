@@ -1,8 +1,10 @@
-﻿namespace SnitchBoard.Models;
+﻿using SnitchBoard.Models;
 
-class Program
+namespace SnitchBoard;
+
+internal class Program
 {
-    static void Main(string[] args)
+    private static void Main()
     {
         Controller controller = new Controller();
         controller.Run();
