@@ -7,11 +7,11 @@ public class DabManager
     //====================================
     public void InsertPerson(string firstName, string lastName)
     {
-        string query = "INSERT IGNORE INTO people (first_name, last_name) VALUES (@first, @last)";
+        string query = "INSERT IGNORE INTO people (first_name, last_name) VALUES (@first_name, @last_name)";
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
-            { "@first", firstName },
-            { "@last", lastName }
+            { "@first_name", firstName },
+            { "@last_name", lastName }
         };
 
         _dbHelper.Insert(query, parameters);
@@ -20,11 +20,11 @@ public class DabManager
     //--------------------------------------------------------------
     public int GetPersonId(string firstName, string lastName)
     {
-        string query = "SELECT id FROM people WHERE first_name = @first AND last_name = @last";
+        string query = "SELECT id FROM people WHERE first_name = @first_name AND last_name = @last_name";
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
-            { "@first", firstName },
-            { "@last", lastName }
+            { "@first_name", firstName },
+            { "@last_name", lastName }
         };
 
         List<Dictionary<string, object>> result = _dbHelper.Select(query, parameters);
@@ -40,7 +40,7 @@ public class DabManager
     //--------------------------------------------------------------
     public void InsertReport(int reporterId, int reportedId, string reportText)
     {
-        string query = "INSERT INTO reports (reporter_id, partner_id, text) VALUES (@r1, @r2, @text)";
+        string query = "INSERT INTO reports (reporter_id, reported_id, text) VALUES (@r1, @r2, @text)";
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
             { "@r1", reporterId },
@@ -54,10 +54,10 @@ public class DabManager
     //--------------------------------------------------------------
     public void UpdateStatusToTrue(int personId, string columnName)
     {
-        string query = $"UPDATE status SET {columnName} = true WHERE person_id = @id";
+        string query = $@"INSERT INTO people_statuses (person_id, {columnName}) VALUES (@personId, TRUE) ON DUPLICATE KEY UPDATE {columnName} = TRUE;";
         Dictionary<string, object> parameters = new Dictionary<string, object>
         {
-            { "@id", personId }
+            { "@personId", personId }
         };
 
         _dbHelper.Insert(query, parameters);
@@ -75,6 +75,8 @@ public class DabManager
         if (reporterId != -1 && reportedId != -1)
         {
             InsertReport(reporterId, reportedId, report.Text);
+            UpdateStatusToTrue(reporterId, "is_reporter");
+            UpdateStatusToTrue(reportedId, "is_reported");
         }
         else
         {
