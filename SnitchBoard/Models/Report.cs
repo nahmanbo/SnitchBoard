@@ -2,31 +2,70 @@ namespace SnitchBoard.Models;
 
 public class Report
 {
-    private string _rawInput;
+    public string ReporterName { get; }
+    public string ReportedName { get; }
+    public string Text { get; }
 
     //====================================
-    public Report()
+    private Report(string reporter, string reported, string text)
     {
-        _rawInput = "";
+        ReporterName = reporter;
+        ReportedName = reported;
+        Text = text;
     }
 
-    //-------------------------------------------------------
-    public void ReadInput()
+    //--------------------------------------------------------------
+    public static Report CreateFromInput()
+    {
+        string input;
+        string[] parts;
+
+        do
+        {
+            input = ReadRawInput();
+            parts = SplitInput(input);
+
+            if (!IsValid(parts))
+                Console.WriteLine("Invalid format. Please use: Your Name | Reported Name | The Report");
+
+        } while (!IsValid(parts));
+
+        return CreateReportFromParts(parts);
+    }
+
+//--------------------------------------------------------------
+    private static string ReadRawInput()
     {
         Console.WriteLine("Insert Report (format: Your Name | Reported Name | The Report):");
-        _rawInput = Console.ReadLine()?.Trim() ?? "";
+        return Console.ReadLine()?? "";
     }
 
-    //-------------------------------------------------------
-    public bool IsValid()
+    //--------------------------------------------------------------
+    private static string[] SplitInput(string input)
     {
-        string[] parts = _rawInput.Split('|');
+        return input.Split('|');
+    }
+
+    //--------------------------------------------------------------
+    private static bool IsValid(string[] parts)
+    {
         return parts.Length == 3;
     }
 
-    //-------------------------------------------------------
+    //--------------------------------------------------------------
+    private static Report CreateReportFromParts(string[] parts)
+    {
+        string reporter = parts[0].Trim();
+        string reported = parts[1].Trim();
+        string text = parts[2].Trim();
+
+        return new Report(reporter, reported, text);
+    }
+
+
+    //--------------------------------------------------------------
     public string[] GetSplitParts()
     {
-        return _rawInput.Split('|').Select(p => p.Trim()).ToArray();
+        return new[] { ReporterName, ReportedName, Text };
     }
 }

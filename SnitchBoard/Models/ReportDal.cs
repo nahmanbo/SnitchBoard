@@ -4,7 +4,7 @@ namespace SnitchBoard.Models;
 public class ReportDal
 {
     private const string ConnectionString = "server=127.0.0.1;user id=root;password=;database=SnitchBoard;port=3306;";
-    private readonly MySqlConnection _dbConnection = new MySqlConnection(ConnectionString);
+    private MySqlConnection _connection = new MySqlConnection(ConnectionString);
 
     //====================================
     public ReportDal()
@@ -17,13 +17,12 @@ public class ReportDal
     {
         try
         {
-            _dbConnection.Open();
-            Console.WriteLine("✅ Connection opened");
+            _connection.Open();
+            Console.WriteLine("Connection opened");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ Connection failed: " + ex.Message);
-            throw;
+            Console.WriteLine("Connection failed: " + ex.Message);
         }
     }
 
@@ -32,12 +31,12 @@ public class ReportDal
     {
         try
         {
-            _dbConnection.Close();
-            Console.WriteLine("✅ Connection closed.");
+            _connection.Close();
+            Console.WriteLine("Connection closed.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ Failed to close connection: " + ex.Message);
+            Console.WriteLine("Failed to close connection: " + ex.Message);
         }
     }
 
@@ -46,7 +45,7 @@ public class ReportDal
     {
         try
         {
-            MySqlCommand command = new MySqlCommand(sqlQuery, _dbConnection);
+            MySqlCommand command = new MySqlCommand(sqlQuery, _connection);
 
             foreach (KeyValuePair<string, object> param in parameters)
             {
@@ -57,7 +56,7 @@ public class ReportDal
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ Failed to insert: " + ex.Message);
+            Console.WriteLine("Failed to insert: " + ex.Message);
         }
     }
 
@@ -68,7 +67,7 @@ public class ReportDal
 
         try
         {
-            MySqlCommand command = new MySqlCommand(sqlQuery, _dbConnection);
+            MySqlCommand command = new MySqlCommand(sqlQuery, _connection);
 
             foreach (KeyValuePair<string, object> param in parameters)
             {
@@ -95,7 +94,7 @@ public class ReportDal
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ Failed to read: " + ex.Message);
+            Console.WriteLine("Failed to read: " + ex.Message);
         }
 
         return resultRows;
@@ -118,7 +117,7 @@ public class ReportDal
             return Convert.ToInt32(value);
         }
 
-        return -1; // not found
+        return -1; 
     }
 
     //--------------------------------------------------------------
@@ -149,12 +148,6 @@ public class ReportDal
     //--------------------------------------------------------------
     public void AddReportByNames(string[] reportData)
     {
-        if (reportData.Length < 3)
-        {
-            Console.WriteLine("❌ reportData must include reporter name, reported name, and report text.");
-            return;
-        }
-
         (string reporterFirstName, string reporterLastName) = SplitFullName(reportData[0]);
         (string reportedFirstName, string reportedLastName) = SplitFullName(reportData[1]);
         string reportText = reportData[2];
@@ -171,7 +164,7 @@ public class ReportDal
         }
         else
         {
-            Console.WriteLine("❌ Failed to retrieve person IDs for report.");
+            Console.WriteLine("Failed to retrieve person IDs for report.");
         }
     }
     
@@ -185,9 +178,9 @@ public class ReportDal
             string lastName = string.Join(" ", parts.Skip(1));
             return (firstName, lastName);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            Console.WriteLine("Failed to split: " + ex.Message);
             throw;
         }
     }
