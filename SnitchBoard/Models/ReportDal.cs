@@ -36,6 +36,56 @@ public class DabManager
 
         return -1;
     }
+    
+    //--------------------------------------------------------------
+    public bool IsDangerousReported(int reportedId)
+    {
+        string query = 
+            "SELECT COUNT(*) AS total_reports, " +
+            "SUM(CASE WHEN r.report_time >= NOW() - INTERVAL 15 MINUTE THEN 1 ELSE 0 END) AS recent_reports " +
+            "FROM reports r " +
+            "WHERE r.reported_id = @id;";
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "@id", reportedId }
+        };
+
+        List<Dictionary<string, object>> result = _dbHelper.Select(query, parameters);
+
+        if (result.Count == 0)
+            return false;
+        
+        int totalReports = Convert.ToInt32(result[0]["total_reports"]);
+        int recentReports = Convert.ToInt32(result[0]["recent_reports"]);
+
+        return totalReports > 3 || recentReports >= 3;
+    }    
+    
+    //--------------------------------------------------------------
+    public bool IsGoodReporter(int reporterId)
+    {
+        string query =
+            "SELECT COUNT(*) AS report_count, " +
+            "       AVG(CHAR_LENGTH(text)) AS avg_length " +
+            "FROM reports r " +
+            "WHERE r.reporter_id = @id;";
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "@id", reporterId }
+        };
+
+        List<Dictionary<string, object>> result = _dbHelper.Select(query, parameters);
+
+        if (result.Count == 0)
+            return false;
+
+        int reportCount = Convert.ToInt32(result[0]["report_count"]);
+        double avgLength = Convert.ToDouble(result[0]["avg_length"]);
+
+        return reportCount >= 10 || avgLength >= 30;
+    }
 
     //--------------------------------------------------------------
     public void InsertReport(int reporterId, int reportedId, string reportText)
@@ -77,10 +127,54 @@ public class DabManager
             InsertReport(reporterId, reportedId, report.Text);
             UpdateStatusToTrue(reporterId, "is_reporter");
             UpdateStatusToTrue(reportedId, "is_reported");
+            if(IsDangerousReported(reportedId))
+                UpdateStatusToTrue(reportedId, "is_dangerous_reported");
+            if(IsGoodReporter(reporterId))
+                UpdateStatusToTrue(reporterId, "is_good_reporter");
+
         }
         else
         {
             Console.WriteLine("Failed to retrieve person IDs for report.");
+        }
+    }
+    
+    //--------------------------------------------------------------
+    public void PrintAllDangerousReported()
+    {
+        string query =
+            "SELECT p.first_name, p.last_name " +
+            "FROM people p " +
+            "JOIN people_statuses ps ON p.id = person_id " +
+            "WHERE ps.is_dangerous_reported = TRUE;";
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>();
+
+        List<Dictionary<string, object>> results = _dbHelper.Select(query, parameters);
+
+        Console.WriteLine("Dangerous Report:");
+        foreach (var row in results)
+        {
+            Console.WriteLine(row["first_name"] + " " + row["last_name"]);
+        }
+    }
+    //--------------------------------------------------------------
+    public void PrintAllGoodReporter()
+    {
+        string query =
+            "SELECT p.first_name, p.last_name " +
+            "FROM people p " +
+            "JOIN people_statuses ps ON p.id = ps.person_id " +
+            "WHERE ps.is_good_reported = TRUE;";
+
+        Dictionary<string, object> parameters = new Dictionary<string, object>();
+
+        List<Dictionary<string, object>> results = _dbHelper.Select(query, parameters);
+
+        Console.WriteLine("Good Reporter:");
+        foreach (var row in results)
+        {
+            Console.WriteLine(row["first_name"] + " " + row["last_name"]);
         }
     }
 

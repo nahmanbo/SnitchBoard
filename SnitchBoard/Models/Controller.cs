@@ -25,7 +25,12 @@ public class Controller
                 case "1":
                     HandleAddReport();
                     break;
-
+                case "2":
+                    _dal.PrintAllGoodReporter();
+                    break;
+                case "3":
+                    _dal.PrintAllDangerousReported();
+                    break;
                 case "4":
                     Console.WriteLine("Exiting...");
                     _dal.Close();
