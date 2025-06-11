@@ -20,9 +20,10 @@ public class Report
     //====================================
     public Report()
     {
-        ReporterName = (string.Empty, string.Empty);
-        ReportedName = (string.Empty, string.Empty);
-        Text = string.Empty;
+        Report created = CreateFromInput();
+        ReporterName = created.ReporterName;
+        ReportedName = created.ReportedName;
+        Text = created.Text;
     }
 
     //--------------------------------------------------------------
@@ -48,7 +49,7 @@ public class Report
     private string ReadInput()
     {
         Console.WriteLine("Insert Report (format: Your Name | Reported Name | The Report):");
-        return Console.ReadLine() ?? string.Empty;
+        return Console.ReadLine()!;
     }
 
     //--------------------------------------------------------------

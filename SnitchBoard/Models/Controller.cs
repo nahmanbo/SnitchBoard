@@ -26,7 +26,7 @@ public class Controller
                     HandleAddReport();
                     break;
 
-                case "6":
+                case "4":
                     Console.WriteLine("Exiting...");
                     _dal.Close();
                     exit = true;
@@ -44,14 +44,15 @@ public class Controller
     {
         Console.WriteLine("\n--- Main Menu ---");
         Console.WriteLine("1. Add agent report");
-        Console.WriteLine("6. Exit");
+        Console.WriteLine("2. Show all optional agents");
+        Console.WriteLine("3. Show all reported dangerous people");
+        Console.WriteLine("4. Exit");
     }
 
     //--------------------------------------------------------------
     private void HandleAddReport()
     {
-        Report reportCreator = new Report();
-        Report report = reportCreator.CreateFromInput();
+        Report report = new Report();
         _dal.AddReport(report);
         Console.WriteLine("Report added successfully.");
     }
