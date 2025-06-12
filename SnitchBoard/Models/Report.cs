@@ -32,39 +32,9 @@ public class Report
     }
 
     //--------------------------------------------------------------
-    public Report CreateFromInput()
+    public string GetUserNameOrId()
     {
-        Console.WriteLine("Warning: It's recommended to use the Controller for proper ID validation.");
-        
-        int reportType = ChooseReportType();
-        
-        if (reportType == 2)
-        {
-            string reporterId = GetReporterIdFromUser();
-            return CreateReportWithValidId(reporterId);
-        }
-        else
-        {
-            return CreateReportWithName();
-        }
-    }
-    
-    //--------------------------------------------------------------
-    public static int ChooseReportType()
-    {
-        Console.WriteLine("Choose how to identify yourself:");
-        Console.WriteLine("1 - Report with your name");
-        Console.WriteLine("2 - Report with your ID number");
-        Console.Write("Enter your choice (1 or 2): ");
-        
-        string choice = Console.ReadLine()!;
-        return choice == "2" ? 2 : 1;
-    }
-    
-    //--------------------------------------------------------------
-    public static string GetReporterIdFromUser()
-    {
-        Console.Write("Enter your ID number: ");
+        Console.Write("Enter name or Id: ");
         return Console.ReadLine()!.Trim();
     }
     
@@ -83,11 +53,8 @@ public class Report
     }
     
     //--------------------------------------------------------------
-    public static Report CreateReportWithName()
+    public static Report CreateReportWithName(string reporterName)
     {
-        Console.Write("Enter your name: ");
-        string reporterName = Console.ReadLine()!.Trim();
-        
         Console.Write("Enter the name of the person you're reporting: ");
         string reportedPersonName = Console.ReadLine()!.Trim();
         
