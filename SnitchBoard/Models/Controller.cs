@@ -2,12 +2,12 @@ namespace SnitchBoard.Models;
 
 public class Controller
 {
-    private readonly DabManager _dal;
+    private readonly ReportDal _dal;
 
     //====================================
     public Controller()
     {
-        _dal = new DabManager();
+        _dal = new ReportDal();
     }
 
     //--------------------------------------------------------------
@@ -58,7 +58,7 @@ public class Controller
     private void HandleAddReport()
     {
         Report report = new Report();
-        _dal.AddReport(report);
+        _dal.AddReport(19, report);
         Console.WriteLine("Report added successfully.");
     }
 }
