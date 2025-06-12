@@ -47,7 +47,13 @@ public class ReportDal
         };
 
         List<Dictionary<string, object>> result = _dbHelper.Select(query, parameters);
-        return result.Count > 0;
+        if (result.Count > 0 )
+            return true;
+        else
+        {
+            Console.WriteLine("Person doesn't exist");
+            return false;
+        }
     }
 
     

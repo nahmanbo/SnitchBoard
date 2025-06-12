@@ -54,7 +54,7 @@ public class Report
     {
         Console.WriteLine("Choose how to identify yourself:");
         Console.WriteLine("1 - Report with your name");
-        Console.WriteLine("2 - Report with your ID number (anonymous)");
+        Console.WriteLine("2 - Report with your ID number");
         Console.Write("Enter your choice (1 or 2): ");
         
         string choice = Console.ReadLine()!;
@@ -71,7 +71,7 @@ public class Report
     //--------------------------------------------------------------
     public static Report CreateReportWithValidId(string validatedId)
     {
-        Console.Write("Enter the name of the person you're reporting: ");
+        Console.Write("Enter the name of the person youre reporting: ");
         string reportedPersonName = Console.ReadLine()!.Trim();
         
         Console.Write("Enter your report: ");
@@ -113,19 +113,6 @@ public class Report
         string lastName = string.Join(" ", nameParts.Skip(1));
         
         return (firstName, lastName);
-    }
-    
-    //--------------------------------------------------------------
-    public object[] GetSplitParts()
-    {
-        if (ReporterIdNumber != null)
-        {
-            return new object[] { ReporterIdNumber, ReportedName, Text };
-        }
-        else
-        {
-            return new object[] { ReporterName, ReportedName, Text };
-        }
     }
     
     //--------------------------------------------------------------

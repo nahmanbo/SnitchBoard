@@ -89,12 +89,7 @@ public class Controller
         {
             reporterId = Report.GetReporterIdFromUser();
 
-            if (!_dal.PersonExistsById(int.Parse(reporterId)))
-            {
-                Console.WriteLine("Invalid ID number. Please enter a valid ID.");
-            }
-
-        } while (_dal.PersonExistsById(int.Parse(reporterId)));
+        } while (!_dal.PersonExistsById(int.Parse(reporterId)));
         
         return Report.CreateReportWithValidId(reporterId);
     }
