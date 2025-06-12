@@ -1,96 +1,103 @@
-using System;
-using System.Linq;
-
 namespace SnitchBoard.Models;
 
 public class Report
 {
-    public (string FirstName, string LastName) ReporterName { get; }
-    public (string FirstName, string LastName) ReportedName { get; } 
+    public (string FirstName, string LastName)? ReporterName { get; }
+    public (string FirstName, string LastName) ReportedName { get; }
+    public string? ReporterIdNumber { get; }
     public string Text { get; }
 
     //====================================
+    // Constructor for reporter using ID
+    public Report(string reporterIdNumber, (string, string) reported, string text)
+    {
+        ReporterName = null;
+        ReportedName = reported;
+        ReporterIdNumber = reporterIdNumber;
+        Text = text;
+    }
+
+    //====================================
+    // Constructor for reporter using full name
     public Report((string, string) reporter, (string, string) reported, string text)
     {
         ReporterName = reporter;
         ReportedName = reported;
+        ReporterIdNumber = null;
         Text = text;
     }
-    
+
     //====================================
+    // Empty constructor for controller-based creation
     public Report()
     {
-        Report created = CreateFromInput();
-        ReporterName = created.ReporterName;
-        ReportedName = created.ReportedName;
-        Text = created.Text;
+        // empty
     }
 
     //--------------------------------------------------------------
-    public Report CreateFromInput()
+    // Prompts user to enter name or ID
+    public string GetUserNameOrId()
     {
-        string input;
-        string[] parts;
-
-        do
-        {
-            input = ReadInput();
-            parts = SplitInput(input);
-
-            if (!IsValid(parts))
-                Console.WriteLine("Invalid format. Please use: Your Name | Reported Name | The Report");
-
-        } while (!IsValid(parts));
-
-        return CreateReportFromParts(parts);
+        Console.Write("Enter name or Id: ");
+        return Console.ReadLine()!.Trim();
     }
 
     //--------------------------------------------------------------
-    private string ReadInput()
+    // Creates a report using a validated reporter ID
+    public static Report CreateReportWithValidId(string validatedId)
     {
-        Console.WriteLine("Insert Report (format: Your Name | Reported Name | The Report):");
-        return Console.ReadLine()!;
+        Console.Write("Enter the name of the person you're reporting: ");
+        string reportedPersonName = Console.ReadLine()!.Trim();
+
+        Console.Write("Enter your report: ");
+        string reportText = Console.ReadLine()!.Trim();
+
+        (string FirstName, string LastName) reported = SplitFullName(reportedPersonName);
+
+        return new Report(validatedId, reported, reportText);
     }
 
     //--------------------------------------------------------------
-    private static string[] SplitInput(string input)
+    // Creates a report using the reporter's name
+    public static Report CreateReportWithName(string reporter)
     {
-        return input.Split('|');
+        Console.Write("Enter the name of the person you're reporting: ");
+        string reportedPersonName = Console.ReadLine()!.Trim();
+
+        Console.Write("Enter your report: ");
+        string reportText = Console.ReadLine()!.Trim();
+
+        (string FirstName, string LastName) reported = SplitFullName(reportedPersonName);
+        (string FirstName, string LastName) reporterName = SplitFullName(reporter);
+
+        return new Report(reporterName, reported, reportText);
     }
 
     //--------------------------------------------------------------
-    private static bool IsValid(string[] parts)
+    // Splits full name into first and last name
+    private static (string FirstName, string LastName) SplitFullName(string fullName)
     {
-        return parts.Length == 3;
-    }
+        string[] nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-    //--------------------------------------------------------------
-    private Report CreateReportFromParts(string[] parts)
-    {
-        (string FirstName, string LastName) reporter = SplitFullName(parts[0].Trim());
-        (string FirstName, string LastName) reported = SplitFullName(parts[1].Trim());
-        string text = parts[2].Trim();
-
-        return new Report(reporter, reported, text);
-    }
-    
-    //--------------------------------------------------------------
-    private (string FirstName, string LastName) SplitFullName(string fullName)
-    {
-        string[] nameParts = fullName.Split(' ');
-        
         if (nameParts.Length == 0)
             return (string.Empty, string.Empty);
-        
+
         string firstName = nameParts[0];
         string lastName = string.Join(" ", nameParts.Skip(1));
-        
+
         return (firstName, lastName);
     }
-    
+
     //--------------------------------------------------------------
-    public object[] GetSplitParts()
+    // Returns a string representation of the report
+    public override string ToString()
     {
-        return new object[] { ReporterName, ReportedName, Text };
+        string reporterInfo = ReporterIdNumber != null
+            ? $"Reporter ID: {ReporterIdNumber}"
+            : $"Reporter name: {ReporterName?.FirstName} {ReporterName?.LastName}";
+
+        return $"{reporterInfo}\n" +
+               $"Reported: {ReportedName.FirstName} {ReportedName.LastName}\n" +
+               $"Report: {Text}";
     }
 }

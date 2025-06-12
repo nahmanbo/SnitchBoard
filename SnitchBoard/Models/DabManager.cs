@@ -7,6 +7,7 @@ public class DabManager
     private readonly MySqlConnection _connection;
 
     //====================================
+    // Constructor: initializes and opens DB connection
     public DabManager(string databaseName)
     {
         string connectionString = $"server=127.0.0.1;user id=root;password=;database={databaseName};port=3306;";
@@ -15,6 +16,7 @@ public class DabManager
     }
 
     //--------------------------------------------------------------
+    // Executes an INSERT query with parameters
     public void Insert(string query, Dictionary<string, object> parameters)
     {
         using (MySqlCommand command = new MySqlCommand(query, _connection))
@@ -29,22 +31,26 @@ public class DabManager
     }
 
     //--------------------------------------------------------------
+    // Executes a SELECT query and returns results as list of dictionaries
     public List<Dictionary<string, object>> Select(string query, Dictionary<string, object>? parameters = null)
     {
-        List<Dictionary<string, object>> results = new List<Dictionary<string, object>>();
+        List<Dictionary<string, object>> results = new();
 
         using (MySqlCommand command = new MySqlCommand(query, _connection))
         {
-            foreach (KeyValuePair<string, object> param in parameters)
+            if (parameters != null)
             {
-                command.Parameters.AddWithValue(param.Key, param.Value);
+                foreach (KeyValuePair<string, object> param in parameters)
+                {
+                    command.Parameters.AddWithValue(param.Key, param.Value);
+                }
             }
 
             using (MySqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    Dictionary<string, object> row = new Dictionary<string, object>();
+                    Dictionary<string, object> row = new();
 
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
@@ -62,6 +68,7 @@ public class DabManager
     }
 
     //--------------------------------------------------------------
+    // Closes the DB connection
     public void Close()
     {
         _connection.Close();
