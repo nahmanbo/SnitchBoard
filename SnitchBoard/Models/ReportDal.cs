@@ -38,6 +38,20 @@ public class ReportDal
     }
     
     //--------------------------------------------------------------
+    public bool PersonExistsById(int id)
+    {
+        string query = "SELECT 1 FROM people WHERE id = @id LIMIT 1";
+        Dictionary<string, object> parameters = new Dictionary<string, object>
+        {
+            { "@id", id }
+        };
+
+        List<Dictionary<string, object>> result = _dbHelper.Select(query, parameters);
+        return result.Count > 0;
+    }
+
+    
+    //--------------------------------------------------------------
     public bool IsDangerousReported(int reportedId)
     {
         string query = 
@@ -114,13 +128,20 @@ public class ReportDal
     }
     
     //--------------------------------------------------------------
-    public void AddReport(int id, Report report)
+    public void AddReport(Report report)
     {
-        if (id != 0)
-            InsertPerson(report.ReporterName.FirstName, report.ReporterName.LastName);
+        int reporterId = -1;
+    
+        if (report.ReporterIdNumber != null)
+        {
+            reporterId = int.Parse(report.ReporterIdNumber);
+        }
+        if (report.ReporterName != null)
+        {
+            InsertPerson(report.ReporterName.Value.FirstName, report.ReporterName.Value.LastName);
+            reporterId = GetPersonId(report.ReporterName.Value.FirstName, report.ReporterName.Value.LastName);
+        }
         InsertPerson(report.ReportedName.FirstName, report.ReportedName.LastName);
-
-        int reporterId = GetPersonId(report.ReporterName.FirstName, report.ReporterName.LastName);
         int reportedId = GetPersonId(report.ReportedName.FirstName, report.ReportedName.LastName);
 
         if (reporterId != -1 && reportedId != -1)
@@ -128,11 +149,12 @@ public class ReportDal
             InsertReport(reporterId, reportedId, report.Text);
             UpdateStatusToTrue(reporterId, "is_reporter");
             UpdateStatusToTrue(reportedId, "is_reported");
-            if(IsDangerousReported(reportedId))
+        
+            if (IsDangerousReported(reportedId))
                 UpdateStatusToTrue(reportedId, "is_dangerous_reported");
-            if(IsGoodReporter(reporterId))
+            
+            if (IsGoodReporter(reporterId))
                 UpdateStatusToTrue(reporterId, "is_good_reporter");
-
         }
         else
         {

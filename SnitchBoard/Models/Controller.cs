@@ -57,8 +57,45 @@ public class Controller
     //--------------------------------------------------------------
     private void HandleAddReport()
     {
-        Report report = new Report();
-        _dal.AddReport(19, report);
-        Console.WriteLine("Report added successfully.");
+        try
+        {
+            int reportType = Report.ChooseReportType();
+            Report report;
+
+            if (reportType == 2)
+            {
+                report = CreateReportWithIdValidation();
+            }
+            else
+            {
+                report = Report.CreateReportWithName();
+            }
+
+            _dal.AddReport(report);
+            Console.WriteLine("Report added successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating report: {ex.Message}");
+        }
+    }
+
+    //--------------------------------------------------------------
+    private Report CreateReportWithIdValidation()
+    {
+        string reporterId;
+
+        do
+        {
+            reporterId = Report.GetReporterIdFromUser();
+
+            if (!_dal.PersonExistsById(int.Parse(reporterId)))
+            {
+                Console.WriteLine("Invalid ID number. Please enter a valid ID.");
+            }
+
+        } while (_dal.PersonExistsById(int.Parse(reporterId)));
+        
+        return Report.CreateReportWithValidId(reporterId);
     }
 }
