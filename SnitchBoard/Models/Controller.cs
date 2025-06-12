@@ -45,6 +45,7 @@ public class Controller
     }
 
     //--------------------------------------------------------------
+    // Displays the main menu options
     private void ShowMainMenu()
     {
         Console.WriteLine("\n--- Main Menu ---");
@@ -55,20 +56,29 @@ public class Controller
     }
 
     //--------------------------------------------------------------
+    // Handles the logic of adding a report based on ID or name
     private void HandleAddReport()
     {
         Report report = new Report();
-        string reporterId = report.GetUserNameOrId();
+        string reporterInput = report.GetUserNameOrId();
 
-        if (int.TryParse(reporterId, out int id) && _dal.PersonExistsById(id))
+        if (IsValidExistingId(reporterInput, out int id))
         {
-            report = Report.CreateReportWithValidId(reporterId);
+            report = Report.CreateReportWithValidId(reporterInput);
         }
         else
         {
-            report = Report.CreateReportWithName(reporterId);
+            report = Report.CreateReportWithName(reporterInput);
         }
-        _dal.AddReport(report); 
+
+        _dal.AddReport(report);
         Console.WriteLine("Report added successfully.");
+    }
+
+    //--------------------------------------------------------------
+    // Checks whether the input is a valid and existing numeric ID
+    private bool IsValidExistingId(string input, out int id)
+    {
+        return int.TryParse(input, out id) && _dal.PersonExistsById(id);
     }
 }

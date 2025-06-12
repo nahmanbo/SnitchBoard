@@ -54,6 +54,7 @@ public class ReportDal
             Console.WriteLine("Person doesn't exist");
             return false;
         }
+        return result.Count > 0;
     }
 
     
